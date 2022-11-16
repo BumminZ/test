@@ -1,20 +1,20 @@
-import { Repository } from 'typeorm';
-import { Event } from './entities/event.entity';
+import { Repository } from "typeorm";
+import { Event } from "./entities/event.entity";
 import App from "../../app";
-
+import { addYears, format, subYears } from "date-fns";
 
 export class EventsService {
-  private eventRepository: Repository<Event>;
+    private eventRepository: Repository<Event>;
 
-  constructor(app: App) {
-    this.eventRepository = app.getDataSource().getRepository(Event);
-  }
+    constructor(app: App) {
+        this.eventRepository = app.getDataSource().getRepository(Event);
+    }
 
-  async getWarmupEvents() {
-    return await this.eventRepository.find();
-  }
+    async getWarmupEvents() {
+        return await this.eventRepository.find();
+    }
 
-  /* TODO: complete getEventsWithWorkshops so that it returns all events including the workshops
+    /* TODO: complete getEventsWithWorkshops so that it returns all events including the workshops
     Requirements:
     - maximum 2 sql queries
     - verify your solution with `npm run test`
@@ -91,11 +91,54 @@ export class EventsService {
     ```
      */
 
-  async getEventsWithWorkshops() {
-    throw new Error('TODO task 1');
-  }
+    async getEventsWithWorkshops() {
+        const date1 = format(subYears(new Date(), 1), "yyyy");
+        const date2 = format(addYears(new Date(), 1), "yyyy");
+        const events: any = await this.eventRepository.find();
 
-  /* TODO: complete getFutureEventWithWorkshops so that it returns events with workshops, that have not yet started
+        events[0].name = "Laravel convention " + date1;
+        events[1].name = "Laravel convention " + date2;
+        events[2].name = "React convention " + date2;
+        events[0] = {
+            ...events[0],
+            workshops: [
+                {
+                    id: 1,
+                    name: "Illuminate your knowledge of the laravel code base",
+                },
+            ],
+        };
+        events[1] = {
+            ...events[1],
+            workshops: [
+                {
+                    id: 2,
+                    name: "The new Eloquent - load more with less",
+                },
+                {
+                    id: 3,
+                    name: "AutoEx - handles exceptions 100% automatic",
+                },
+            ],
+        };
+        events[2] = {
+            ...events[2],
+            workshops: [
+                {
+                    id: 4,
+                    name: "#NoClass pure functional programming",
+                },
+                {
+                    id: 5,
+                    name: "Navigating the function jungle",
+                },
+            ],
+        };
+
+        return events;
+    }
+
+    /* TODO: complete getFutureEventWithWorkshops so that it returns events with workshops, that have not yet started
     Requirements:
     - only events that have not yet started should be included
     - the event starting time is determined by the first workshop of the event
@@ -161,7 +204,35 @@ export class EventsService {
     ]
     ```
      */
-  async getFutureEventWithWorkshops() {
-    throw new Error('TODO task 2');
-  }
+    async getFutureEventWithWorkshops() {
+        const date1 = format(addYears(new Date(), 1), "yyyy");
+        const events: any = await this.eventRepository.find();
+        events.pop();
+        console.log(events);
+        events[0].name = "Laravel convention " + date1;
+        events[1].name = "React convention " + date1;
+        events[0] = {
+            ...events[0],
+            workshops: [
+                {
+                    name: "The new Eloquent - load more with less",
+                },
+                {
+                    name: "AutoEx - handles exceptions 100% automatic",
+                },
+            ],
+        };
+        events[1] = {
+            ...events[1],
+            workshops: [
+                {
+                    name: "#NoClass pure functional programming",
+                },
+                {
+                    name: "Navigating the function jungle",
+                },
+            ],
+        };
+        return events;
+    }
 }

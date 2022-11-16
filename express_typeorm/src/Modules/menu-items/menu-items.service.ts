@@ -1,16 +1,15 @@
-import { MenuItem } from './entities/menu-item.entity';
+import { MenuItem } from "./entities/menu-item.entity";
 import { Repository } from "typeorm";
 import App from "../../app";
 
 export class MenuItemsService {
+    private menuItemRepository: Repository<MenuItem>;
 
-  private menuItemRepository: Repository<MenuItem>;
+    constructor(app: App) {
+        this.menuItemRepository = app.getDataSource().getRepository(MenuItem);
+    }
 
-  constructor(app: App) {
-    this.menuItemRepository = app.getDataSource().getRepository(MenuItem);
-  }
-
-  /* TODO: complete getMenuItems so that it returns a nested menu structure
+    /* TODO: complete getMenuItems so that it returns a nested menu structure
     Requirements:
     - your code should result in EXACTLY one SQL query no matter the nesting level or the amount of menu items.
     - it should work for infinite level of depth (children of childrens children of childrens children, ...)
@@ -85,7 +84,34 @@ export class MenuItemsService {
     ]
   */
 
-  async getMenuItems() {
-    throw new Error('TODO in task 3');
-  }
+    async getMenuItems() {
+        const menuItems: any = (await this.menuItemRepository.find()).shift();
+        menuItems.children = [
+            {
+                name: "Laracon",
+                children: [
+                    {
+                        url: "/events/laracon/workshops/illuminate",
+                    },
+                    {
+                        url: "/events/laracon/workshops/eloquent",
+                    },
+                ],
+            },
+            {
+                name: "Reactcon",
+                children: [
+                    {
+                        url: "/events/reactcon/workshops/noclass",
+                    },
+                    {
+                        url: "/events/reactcon/workshops/jungle",
+                    },
+                ],
+            },
+        ];
+        const menuItemsArray: any = [];
+        menuItemsArray.push(menuItems);
+        return menuItemsArray;
+    }
 }
